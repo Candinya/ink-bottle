@@ -1,4 +1,4 @@
-FROM golang:alpine AS Builder
+FROM golang:alpine AS builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -16,7 +16,7 @@ COPY . .
 # Build image
 RUN go build -o app .
 
-FROM alpine AS Runner
+FROM alpine AS runner
 
 WORKDIR /app
 
