@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func init() {
@@ -39,6 +40,8 @@ func main() {
 
 	// 创建服务器
 	e := echo.New()
+
+	e.Use(middleware.CORS())
 
 	// 健康状态检查
 	e.GET("/", func(c echo.Context) error {
