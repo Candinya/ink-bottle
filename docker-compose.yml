@@ -1,0 +1,8 @@
+services:
+  ink-bottle:
+    image: ghcr.io/candinya/ink-bottle:main
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:1323:1323"
