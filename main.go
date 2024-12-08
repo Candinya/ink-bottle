@@ -34,6 +34,11 @@ func init() {
 			varCountDays = countDatsInt
 		} // 忽略错误
 	}
+	if githubLikeLimit, exist := os.LookupEnv("LIKE_LIMIT_GITHUB"); exist {
+		if githubLikeLimitInt, err := strconv.Atoi(githubLikeLimit); err == nil {
+			varLikeLimitGithub = githubLikeLimitInt
+		} // 忽略错误
+	}
 	if githubToken, exist := os.LookupEnv("GITHUB_TOKEN"); exist {
 		varGithubToken = githubToken
 	} else {
@@ -60,6 +65,9 @@ func main() {
 
 	// GitHub 活动 与 社交活动 数量统计
 	e.GET("/count/activity", CountActivity)
+
+	// 喜欢的东西
+	e.GET("/like/github", LikeGithub)
 
 	// 启动服务器
 	e.Logger.Fatal(e.Start(varListen))
