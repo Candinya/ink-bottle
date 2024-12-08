@@ -23,10 +23,11 @@ var blogFeedCache cacheData
 var githubFeedCache cacheData
 
 type blogFeedResponseItem struct {
-	Cover string    `json:"cover"`
-	Date  time.Time `json:"date"`
-	Title string    `json:"title"`
-	Link  string    `json:"link"`
+	Cover      string    `json:"cover"`
+	Date       time.Time `json:"date"`
+	Title      string    `json:"title"`
+	Categories []string  `json:"categories"`
+	Link       string    `json:"link"`
 }
 
 type githubFeedResponseItem struct {
@@ -49,9 +50,10 @@ func FeedBlog(c echo.Context) error {
 		for (varFeedLimitBlog <= 0 || len(itemsSelected) < varFeedLimitBlog) && len(feed) > 0 {
 			if feed[0].Title != "" {
 				item := blogFeedResponseItem{
-					Date:  *feed[0].PublishedParsed,
-					Title: feed[0].Title,
-					Link:  feed[0].Link,
+					Date:       *feed[0].PublishedParsed,
+					Title:      feed[0].Title,
+					Categories: feed[0].Categories,
+					Link:       feed[0].Link,
 				}
 				if len(feed[0].Extensions["media"]["thumbnail"]) > 0 {
 					item.Cover = feed[0].Extensions["media"]["thumbnail"][0].Attrs["url"]
