@@ -55,6 +55,7 @@ type countGithubResponse struct {
 
 type activityCountResult struct {
 	Total int   `json:"total"`
+	Max   int   `json:"max"`
 	Day   []int `json:"day"` // 倒序，从当前天开始
 }
 
@@ -97,6 +98,7 @@ func countGithubActivity() (*activityCountResult, error) {
 
 	processedResult := activityCountResult{
 		Total: 0,
+		Max:   -1,
 		Day:   make([]int, varCountDays), // 初始化定长数组
 	}
 
@@ -111,6 +113,9 @@ func countGithubActivity() (*activityCountResult, error) {
 					// 属于计算日里面，累加
 					processedResult.Day[diffDays] = day.ContributionCount
 					processedResult.Total += day.ContributionCount
+					if day.ContributionCount > processedResult.Max {
+						processedResult.Max = day.ContributionCount
+					}
 				} // else 不属于计算日，忽略
 			} // else 没有贡献，没必要累加
 		}
@@ -148,11 +153,15 @@ func countMisskeyActivity() (*activityCountResult, error) {
 
 	processedResult := activityCountResult{
 		Total: 0,
+		Max:   -1,
 		Day:   result.Inc,
 	}
 
 	for _, r := range result.Inc {
 		processedResult.Total += r
+		if r > processedResult.Max {
+			processedResult.Max = r
+		}
 	}
 
 	return &processedResult, nil
@@ -176,7 +185,8 @@ func CountActivity(c echo.Context) error {
 			return c.String(http.StatusInternalServerError, "Misskey 统计失败")
 		}
 
-		dataJson := map[string]*activityCountResult{
+		dataJson := map[string]interface{}{
+			"days":    varCountDays,
 			"github":  resGithub,
 			"misskey": resMisskey,
 		}
