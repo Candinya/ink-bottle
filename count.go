@@ -81,7 +81,7 @@ func countGithubActivity() (*activityCountResult, error) {
 	req.Header.Set("Authorization", "Bearer "+varGithubToken)
 
 	// 发出请求
-	res, err := (&http.Client{}).Do(req)
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("请求发送失败: %v", err)
 	}
@@ -138,7 +138,7 @@ type countMisskeyResponse struct {
 }
 
 func countMisskeyActivity() (*activityCountResult, error) {
-	res, err := (&http.Client{}).Get(fmt.Sprintf("https://nya.one/api/charts/user/notes?userId=8837yxdz1d&limit=%d&span=day", varCountDays))
+	res, err := http.Get(fmt.Sprintf("https://nya.one/api/charts/user/notes?userId=8837yxdz1d&limit=%d&span=day", varCountDays))
 	if err != nil {
 		return nil, fmt.Errorf("请求失败: %v", err)
 	}
