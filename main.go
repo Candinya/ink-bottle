@@ -59,7 +59,7 @@ func main() {
 	e.GET("/feed/misskey", FeedMisskey)
 
 	// GitHub 活动 与 社交活动 数量统计
-	e.GET("/count/social-activity", CountSocialActivity)
+	e.GET("/count/activity", CountActivity)
 
 	// 启动服务器
 	e.Logger.Fatal(e.Start(varListen))

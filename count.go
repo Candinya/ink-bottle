@@ -160,7 +160,7 @@ func countMisskeyActivity() (*activityCountResult, error) {
 
 var countCache cacheData
 
-func CountSocialActivity(c echo.Context) error {
+func CountActivity(c echo.Context) error {
 	if countCache.data == nil || time.Now().Sub(countCache.createdAt) > 12*time.Hour {
 		// 请求新的数据
 
