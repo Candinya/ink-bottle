@@ -4,10 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"time"
 )
+
+var (
+	htmlSanitizer *bluemonday.Policy
+)
+
+func init() {
+	htmlSanitizer = bluemonday.StripTagsPolicy()
+}
 
 func feedProcess(feedUrl string) ([]*gofeed.Item, error) {
 	fp := gofeed.NewParser()
@@ -21,6 +30,7 @@ func feedProcess(feedUrl string) ([]*gofeed.Item, error) {
 
 var blogFeedCache cacheData
 var githubFeedCache cacheData
+var misskeyFeedCache cacheData
 
 type blogFeedResponseItem struct {
 	Cover      string    `json:"cover"`
@@ -34,6 +44,12 @@ type githubFeedResponseItem struct {
 	Date  time.Time `json:"date"`
 	Title string    `json:"title"`
 	Link  string    `json:"link"`
+}
+
+type misskeyFeedResponseItem struct {
+	Date    time.Time `json:"date"`
+	Content string    `json:"content"`
+	Link    string    `json:"link"`
 }
 
 func FeedBlog(c echo.Context) error {
@@ -113,4 +129,39 @@ func FeedGithub(c echo.Context) error {
 
 	// 直接作为 binary 输出
 	return c.Blob(http.StatusOK, "application/json", githubFeedCache.data)
+}
+
+func FeedMisskey(c echo.Context) error {
+	if misskeyFeedCache.data == nil || time.Now().Sub(misskeyFeedCache.createdAt) > 1*time.Hour {
+		// 重新拉取
+		feed, err := feedProcess("https://nya.one/@Candinya.atom")
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSON(http.StatusInternalServerError, "Misskey feed 处理失败")
+		}
+
+		// 处理数据
+		var itemsSelected []*misskeyFeedResponseItem
+		for (varFeedLimitMisskey <= 0 || len(itemsSelected) < varFeedLimitMisskey) && len(feed) > 0 {
+			itemsSelected = append(itemsSelected, &misskeyFeedResponseItem{
+				Date:    *feed[0].PublishedParsed,
+				Content: htmlSanitizer.Sanitize(feed[0].Content),
+				Link:    feed[0].Link,
+			})
+			feed = feed[1:]
+		}
+
+		// 缓存
+		dataBytes, err := json.Marshal(itemsSelected)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.String(http.StatusInternalServerError, "响应结果格式化失败")
+		}
+
+		misskeyFeedCache.data = dataBytes
+		misskeyFeedCache.createdAt = time.Now()
+	}
+
+	// 直接作为 binary 输出
+	return c.Blob(http.StatusOK, "application/json", misskeyFeedCache.data)
 }

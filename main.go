@@ -24,6 +24,11 @@ func init() {
 			varFeedLimitGithub = githubFeedLimitInt
 		} // 忽略错误
 	}
+	if misskeyFeedLimit, exist := os.LookupEnv("FEED_LIMIT_MISSKEY"); exist {
+		if misskeyFeedLimitInt, err := strconv.Atoi(misskeyFeedLimit); err == nil {
+			varFeedLimitMisskey = misskeyFeedLimitInt
+		} // 忽略错误
+	}
 	if countDats, exist := os.LookupEnv("COUNT_DAYS"); exist {
 		if countDatsInt, err := strconv.Atoi(countDats); err == nil {
 			varCountDays = countDatsInt
@@ -51,6 +56,7 @@ func main() {
 	// Feed
 	e.GET("/feed/blog", FeedBlog)
 	e.GET("/feed/github", FeedGithub)
+	e.GET("/feed/misskey", FeedMisskey)
 
 	// GitHub 活动 与 社交活动 数量统计
 	e.GET("/count/social-activity", CountSocialActivity)
