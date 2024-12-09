@@ -170,7 +170,7 @@ func countMisskeyActivity() (*activityCountResult, error) {
 var countCache cacheData
 
 func CountActivity(c echo.Context) error {
-	if countCache.data == nil || time.Now().Sub(countCache.createdAt) > 12*time.Hour {
+	if countCache.data == nil || time.Now().Sub(countCache.createdAt) > 1*time.Hour {
 		// 请求新的数据
 
 		resGithub, err := countGithubActivity()
